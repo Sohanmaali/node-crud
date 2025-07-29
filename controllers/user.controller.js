@@ -4,13 +4,17 @@ const jwt = require('jsonwebtoken');
 
 // Register
 exports.register = async (req, res) => {
+
+  console.log("-=-=-=req.body-=-==",req.body);
+  
   const { name, email, password } = req.body;
+  const image = req.file ? req.file.filename : null;
   try {
     const exist = await User.findOne({ email });
     if (exist) return res.status(400).json({ message: 'User already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ name, email, password: hashedPassword,image });
 
     res.status(201).json({ message: 'User registered', user });
   } catch (error) {
@@ -63,15 +67,19 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const updateData = { ...req.body };
+    if (req.file) updateData.image = req.file.filename;
+
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }
+
     const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json({ message: 'User updated', user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Delete user
 exports.deleteUser = async (req, res) => {

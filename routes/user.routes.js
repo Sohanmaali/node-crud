@@ -10,8 +10,10 @@ const {
 } = require('../controllers/user.controller');
 
 const { verifyToken } = require('../middlewares/auth.middleware');
+const upload = require('../middlewares/upload.middleware');
 
-router.post('/register', register);
+// router.post('/register', register);
+router.post('/register', upload.single('image'), register);
 router.post('/login', login);
 
 // Protected Routes
